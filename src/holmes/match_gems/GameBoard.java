@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GameBoard extends JFrame {
+	//Dimensions for the game board can be adjusted here
 	final int rows = 10;
 	final int cols = 10;
 	final Gem[][] board = new Gem[rows][cols];
@@ -16,15 +17,19 @@ public class GameBoard extends JFrame {
 		super(name);
 		setResizable(false);
 
-		//Initializes the cache and populates it with all the
-		//gem images which are used as animation frames
+		/*
+		Initializes the cache and populates it with all the gem images which are used as animation frames.
+		Due to the symmetry of the gems, only half of the total frames are necessary to achieve what looks like
+		a full revolution of the gems spinning.
+
+		Total memory reserved is about 900KB when using the 64x64 images,
+		~650KB for the 32x32 images,
+		or ~2MB for the 144x144 images.
+		*/
 		for (int i = 1; i <= 30; i++) {
-			cache.getImage("Crystals/64/Blue/" + i + ".png");
-			cache.getImage("Crystals/64/Clear/" + i + ".png");
-			cache.getImage("Crystals/64/Green/" + i + ".png");
-			cache.getImage("Crystals/64/Pink/" + i + ".png");
-			cache.getImage("Crystals/64/Red/" + i + ".png");
-			cache.getImage("Crystals/64/Yellow/" + i + ".png");
+			for (GemColor color : GemColor.values()) {
+				cache.getImage(Constants.gemFilePath(color, i));
+			}
 		}
 	}
 
@@ -38,10 +43,12 @@ public class GameBoard extends JFrame {
 		generateGems();
 		generateBoard(mainPanel);
 
-		//Animate the gems spinning by repainting the game board 30 times per second
-		//Since Gem objects extend JLabel, this triggers their getIcon method,
-		//which has been overridden to return a new Icon each time it is called.
-		ActionListener timerListener = repaintLabels -> mainPanel.repaint();
+		/*
+		Animate the gems spinning by repainting the game board 30 times per second.
+		Since Gem objects extend JLabel, this triggers their getIcon method,
+		which has been overridden to return a new Icon each time it is called.
+		*/
+		ActionListener timerListener = _ -> mainPanel.repaint();
 		Timer timer = new Timer(1000 / 30, timerListener);
 		timer.start();
 

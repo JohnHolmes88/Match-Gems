@@ -12,34 +12,8 @@ public class Gem extends JLabel {
 		this.color = color;
 	}
 
-	public String resourcePath() {
-		switch (color) {
-			case BLUE -> {
-				return "Crystals/64/Blue";
-			}
-			case CLEAR -> {
-				return "Crystals/64/Clear";
-			}
-			case GREEN -> {
-				return "Crystals/64/Green";
-			}
-			case PINK -> {
-				return "Crystals/64/Pink";
-			}
-			case RED -> {
-				return "Crystals/64/Red";
-			}
-			case YELLOW -> {
-				return "Crystals/64/Yellow";
-			}
-			default -> {
-				return "Crystals/Original/Blue";
-			}
-		}
-	}
-
 	/**
-	 * Overrides the getIcon method of JLabel
+	 * Overrides the getIcon method of JLabel.
 	 * Each call to this method advances the animationFrame counter,
 	 * which is used to retrieve the next BufferedImage from the cache.
 	 * <p>
@@ -49,7 +23,7 @@ public class Gem extends JLabel {
 	 */
 	public ImageIcon getIcon() {
 		ImageCache cache = Helper.cache;
-		String path = resourcePath() + "/" + animationFrame + ".png";
+		String path = Constants.gemFilePath(color, animationFrame);
 		BufferedImage image;
 		try {
 			image = cache.getImage(path);
