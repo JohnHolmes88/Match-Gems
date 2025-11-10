@@ -1,0 +1,7 @@
+Gem resource files sourced from here: https://opengameart.org/content/animated-spinning-gems
+License:
+The images in this archive are licensed under Attribution 3.0 Unported (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+
+Attribution:
+Code Inferno Games - codeinferno.com
