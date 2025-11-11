@@ -14,15 +14,17 @@ import javax.imageio.ImageIO;
  * "object database" which will remain loaded in memory.
  * <p>
  * The GameBoard will instantiate the cache map by calling getImage for all animation frames of all gems,
- * totalling 30 frames x 6 gems, or 180 images.
+ * totalling 30 frames x 6 gems, or 180 images. Thus, 180 is used as the expected capacity for the map.
  */
 public class ImageCache {
-	private final Map<String, BufferedImage> cache = new HashMap<>();
+	private final Map<String, BufferedImage> cache = HashMap.newHashMap(180);
 
 	/**
 	 * A call to this method will check if the resulting image specified by the resource path is already in the cache
 	 * map or not. If it is in the map, that entry is returned. Otherwise, the new image is added to the cache to save
 	 * future performance, and then returned.
+	 * <p>
+	 * This allows the game board to be reset without having to cache all the images again.
 	 *
 	 * @param path - resource path to the image
 	 * @return - a BufferedImage loaded from the file at the resource path

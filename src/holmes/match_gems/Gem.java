@@ -1,15 +1,19 @@
 package holmes.match_gems;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class Gem extends JLabel {
+public class Gem extends JButton {
 	int animationFrame = 1;
 	final GemColor color;
 
 	public Gem(GemColor color) {
 		this.color = color;
+		this.setMargin(new Insets(0, 0, 0, 0));
+		this.setBackground(Color.WHITE);
+		this.setBorder(null);
 	}
 
 	/**

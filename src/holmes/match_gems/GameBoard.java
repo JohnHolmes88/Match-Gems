@@ -2,16 +2,19 @@ package holmes.match_gems;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GameBoard extends JFrame {
+public class GameBoard extends JFrame implements ActionListener {
 	//Dimensions for the game board can be adjusted here
 	final int rows = 10;
 	final int cols = 10;
 	final Gem[][] board = new Gem[rows][cols];
 	final ImageCache cache = Helper.cache;
+	boolean selection = false;
+	Gem lastSelection;
 
 	public GameBoard(String name) throws IOException {
 		super(name);
@@ -33,29 +36,31 @@ public class GameBoard extends JFrame {
 		}
 	}
 
+
 	public void addComponentsToPane(final Container pane) {
-		final JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new GridLayout(rows, cols, 1, 1));
-		JPanel controls = new JPanel();
-		controls.setLayout(new GridLayout(0, 3));
+		final JPanel gamePanel = new JPanel();
+		gamePanel.setLayout(new GridLayout(rows, cols, 0, 0));
+		JPanel controlPanel = new JPanel();
+		controlPanel.setLayout(new GridLayout(0, 3));
 
 		//Add gems to main board
 		generateGems();
-		generateBoard(mainPanel);
+		generateBoard(gamePanel);
 
 		/*
 		Animate the gems spinning by repainting the game board 30 times per second.
 		Since Gem objects extend JLabel, this triggers their getIcon method,
 		which has been overridden to return a new Icon each time it is called.
 		*/
-		ActionListener timerListener = _ -> mainPanel.repaint();
+		ActionListener timerListener = _ -> gamePanel.repaint();
 		Timer timer = new Timer(1000 / 30, timerListener);
 		timer.start();
 
-		pane.add(mainPanel, BorderLayout.NORTH);
+		pane.add(gamePanel, BorderLayout.NORTH);
 		pane.add(new JSeparator(), BorderLayout.CENTER);
-		pane.add(controls, BorderLayout.SOUTH);
+		pane.add(controlPanel, BorderLayout.SOUTH);
 	}
+
 
 	/**
 	 * Instantiates the game board with new, randomly-colored gem objects
@@ -67,10 +72,12 @@ public class GameBoard extends JFrame {
 				// so add 1 to make it inclusive
 				int randomNum = ThreadLocalRandom.current().nextInt(0, 5 + 1);
 				Gem gem = new Gem(GemColor.values()[randomNum]);
+				gem.addActionListener(this);
 				board[x][y] = gem;
 			}
 		}
 	}
+
 
 	/**
 	 * Adds all the Gem objects to the gameBoard panel
@@ -85,6 +92,7 @@ public class GameBoard extends JFrame {
 		}
 	}
 
+
 	private static void createAndShowGUI() throws IOException {
 		//Create and set up the window.
 		GameBoard frame = new GameBoard("Match Gems");
@@ -95,6 +103,21 @@ public class GameBoard extends JFrame {
 		frame.pack();
 		frame.setVisible(true);
 	}
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		//TODO: actual game logic for swapping gems and evaluating matches
+		if (!selection) {
+			lastSelection = (Gem) e.getSource();
+			lastSelection.setBackground(Color.GRAY);
+		} else {
+			lastSelection.setBackground(Color.WHITE);
+		}
+
+		selection = !selection;
+	}
+
 
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(() -> {
