@@ -107,12 +107,12 @@ public class GameBoard extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		//TODO: actual game logic for swapping gems and evaluating matches
 		if (!selection) {
 			lastSelection = (Gem) e.getSource();
 			lastSelection.setBackground(Color.GRAY);
 		} else {
 			lastSelection.setBackground(Color.WHITE);
+			//TODO: actual game logic for swapping gems and evaluating matches
 		}
 
 		selection = !selection;
