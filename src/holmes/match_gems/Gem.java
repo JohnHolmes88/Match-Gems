@@ -7,14 +7,19 @@ import java.io.IOException;
 
 public class Gem extends JButton {
 	int animationFrame = 1;
-	final GemColor color;
+	GemColor color;
+	int x;
+	int y;
 
-	public Gem(GemColor color) {
+	public Gem(GemColor color, int x, int y) {
 		this.color = color;
+		this.x = x;
+		this.y = y;
 		this.setMargin(new Insets(0, 0, 0, 0));
 		this.setBackground(Color.WHITE);
 		this.setBorder(null);
 	}
+
 
 	/**
 	 * Overrides the getIcon method of JLabel.

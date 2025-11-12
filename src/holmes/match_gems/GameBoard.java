@@ -13,8 +13,9 @@ public class GameBoard extends JFrame implements ActionListener {
 	final int cols = 10;
 	final Gem[][] board = new Gem[rows][cols];
 	final ImageCache cache = Helper.cache;
-	boolean selection = false;
+	boolean gemSelected = false;
 	Gem lastSelection;
+	JPanel gamePanel;
 
 	public GameBoard(String name) throws IOException {
 		super(name);
@@ -38,7 +39,7 @@ public class GameBoard extends JFrame implements ActionListener {
 
 
 	public void addComponentsToPane(final Container pane) {
-		final JPanel gamePanel = new JPanel();
+		gamePanel = new JPanel();
 		gamePanel.setLayout(new GridLayout(rows, cols, 0, 0));
 		JPanel controlPanel = new JPanel();
 		controlPanel.setLayout(new GridLayout(0, 3));
@@ -49,7 +50,7 @@ public class GameBoard extends JFrame implements ActionListener {
 
 		/*
 		Animate the gems spinning by repainting the game board 30 times per second.
-		Since Gem objects extend JLabel, this triggers their getIcon method,
+		Since Gem objects extend JButton, this triggers their getIcon method,
 		which has been overridden to return a new Icon each time it is called.
 		*/
 		ActionListener timerListener = _ -> gamePanel.repaint();
@@ -71,7 +72,7 @@ public class GameBoard extends JFrame implements ActionListener {
 				// nextInt is normally exclusive of the top value,
 				// so add 1 to make it inclusive
 				int randomNum = ThreadLocalRandom.current().nextInt(0, 5 + 1);
-				Gem gem = new Gem(GemColor.values()[randomNum]);
+				Gem gem = new Gem(GemColor.values()[randomNum], x, y);
 				gem.addActionListener(this);
 				board[x][y] = gem;
 			}
@@ -107,20 +108,49 @@ public class GameBoard extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (!selection) {
-			lastSelection = (Gem) e.getSource();
-			lastSelection.setBackground(Color.GRAY);
-		} else {
-			lastSelection.setBackground(Color.WHITE);
-			//TODO: actual game logic for swapping gems and evaluating matches
-		}
 
-		selection = !selection;
+		//Handle clicks on gems
+		if (e.getSource() instanceof Gem selection) {
+			if (!gemSelected) {
+				lastSelection = board[selection.x][selection.y];
+				lastSelection.setBackground(Color.GRAY);
+			} else {
+				lastSelection.setBackground(Color.WHITE);
+
+				//Record color and position for both gem selections
+				GemColor firstColor = lastSelection.color;
+				int firstX = lastSelection.x;
+				int firstY = lastSelection.y;
+				GemColor secondColor = selection.color;
+				int secondX = selection.x;
+				int secondY = selection.y;
+
+				System.out.printf("""
+							---SELECTION---
+							First selection: %s at %d, %d
+							Second selection: %s at %d, %d
+							""",
+						firstColor.name(), firstX, firstY,
+						secondColor.name(), secondX, secondY);
+
+				//Swap color for selected gems
+				board[firstX][firstY].color = secondColor;
+				board[secondX][secondY].color = firstColor;
+
+				//TODO: evaluate if swap is valid
+				//TODO: evaluate matches
+				//TODO: clear matches
+				//TODO: refill board
+				//TODO: points?
+			}
+
+			gemSelected = !gemSelected;
+		}
 	}
 
 
 	public static void main(String[] args) {
-		javax.swing.SwingUtilities.invokeLater(() -> {
+		SwingUtilities.invokeLater(() -> {
 			try {
 				createAndShowGUI();
 			} catch (IOException e) {
