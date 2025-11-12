@@ -12,7 +12,7 @@ public class GameBoard extends JFrame implements ActionListener {
 	final int rows = 10;
 	final int cols = 10;
 	final Gem[][] board = new Gem[rows][cols];
-	final ImageCache cache = Helper.cache;
+	final ImageCache cache = Constants.cache;
 	boolean gemSelected = false;
 	Gem lastSelection;
 	JPanel gamePanel;

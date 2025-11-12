@@ -31,7 +31,7 @@ public class Gem extends JButton {
 	 * @return - current frame of the animation for the spinning gem
 	 */
 	public ImageIcon getIcon() {
-		ImageCache cache = Helper.cache;
+		ImageCache cache = Constants.cache;
 		String path = Constants.gemFilePath(color, animationFrame);
 		BufferedImage image;
 		try {

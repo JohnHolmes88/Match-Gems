@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 /**
  * Builds and maintains a map of resource paths to images.
- * Initialized only once by the Helper class, that instance can be used as a kind of
+ * Initialized only once by the Constants class, that instance can be used as a kind of
  * "object database" which will remain loaded in memory.
  * <p>
  * The GameBoard will instantiate the cache map by calling getImage for all animation frames of all gems,
