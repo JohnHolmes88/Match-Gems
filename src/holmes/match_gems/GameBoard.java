@@ -156,17 +156,110 @@ public class GameBoard extends JFrame implements ActionListener {
 		int secondX = second.x;
 		int secondY = second.y;
 
-		System.out.printf("""
-							---SELECTION---
-							First selection: %s at %d, %d
-							Second selection: %s at %d, %d
-							""",
-				firstColor.name(), firstX, firstY,
-				secondColor.name(), secondX, secondY);
-
-		//Swap color for selected gems
+		//Tentatively make the swap, then verify if it's legal
 		board[firstX][firstY].color = secondColor;
 		board[secondX][secondY].color = firstColor;
+
+		if (checkAroundCell(firstX, firstY, secondColor) && checkAroundCell(secondX, secondY, firstColor)) {
+			//Swap back if not legal
+			board[firstX][firstY].color = firstColor;
+			board[secondX][secondY].color = secondColor;
+
+			return;
+		}
+
+		findAllMatches();
+	}
+
+
+	private boolean checkAroundCell(int x, int y, GemColor color) {
+		// Check vertical
+		int vertical = 1;
+
+		// Up
+		int cx = x - 1;
+		while (cx >= 0 && board[cx][y].color == color) {
+			vertical++;
+			cx--;
+		}
+
+		// Down
+		cx = x + 1;
+		while (cx < rows && board[cx][y].color == color) {
+			vertical++;
+			cx++;
+		}
+
+		if (vertical >= 3) {
+			return false; // a match exists
+		}
+
+		// Check horizontal
+		int horizontal = 1;
+
+		// Left
+		int cy = y - 1;
+		while (cy >= 0 && board[x][cy].color == color) {
+			horizontal++;
+			cy--;
+		}
+
+		// Right
+		cy = y + 1;
+		while (cy < cols && board[x][cy].color == color) {
+			horizontal++;
+			cy++;
+		}
+
+		if (horizontal >= 3) {
+			return false; // a match exists
+		}
+
+		// No matches
+		return true;
+	}
+
+
+
+	private void findAllMatches() {
+		//Check horizontal
+		for (int row = 0; row < rows; row++) {
+			int col = 0;
+			while (col < cols) {
+				int start = col;
+				GemColor color = board[row][col].color;
+
+				while (col < cols && board[row][col].color == color) {
+					col++;
+				}
+
+				if (col - start >= 3) {
+					for (int c = start; c < col; c++) {
+						board[row][c].color = null;
+					}
+				}
+			}
+		}
+
+		//Check vertical
+		for (int col = 0; col < cols; col++) {
+			int row = 0;
+			while (row < rows) {
+				int start = row;
+				GemColor color = board[row][col].color;
+
+				while (row < rows && board[row][col].color == color) {
+					row++;
+				}
+
+				if (row - start >= 3) {
+					for (int r = start; r < row; r++) {
+						board[r][col].color = null;
+					}
+				}
+			}
+		}
+
 	}
 
 
@@ -195,9 +288,6 @@ public class GameBoard extends JFrame implements ActionListener {
 
 				evaluateMatches(lastSelection, board[selection.x][selection.y]);
 
-				//TODO: evaluate if swap is valid
-				//TODO: evaluate matches
-				//TODO: clear matches
 				//TODO: points?
 			}
 
