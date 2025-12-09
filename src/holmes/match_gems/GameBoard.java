@@ -11,7 +11,7 @@ public class GameBoard extends JFrame implements ActionListener {
 	//Dimensions for the game board can be adjusted here
 	final int rows = 10;
 	final int cols = 10;
-	final Gem[][] board = new Gem[rows][cols];
+	Gem[][] board;
 	final ImageCache cache = Constants.cache;
 	boolean gemSelected = false;
 	Gem lastSelection;
@@ -30,7 +30,7 @@ public class GameBoard extends JFrame implements ActionListener {
 		~650KB for the 32x32 images,
 		or ~2MB for the 144x144 images.
 		*/
-		for (int i = 1; i <= 30; i++) {
+		for (int i = 1; i <= Constants.SPIN_FRAMES; i++) {
 			for (GemColor color : GemColor.values()) {
 				cache.getImage(Constants.gemFilePath(color, i));
 			}
@@ -38,11 +38,14 @@ public class GameBoard extends JFrame implements ActionListener {
 	}
 
 
-	public void addComponentsToPane(final Container pane) {
+	private void addComponentsToPane(final Container pane) {
 		gamePanel = new JPanel();
 		gamePanel.setLayout(new GridLayout(rows, cols, 0, 0));
 		JPanel controlPanel = new JPanel();
 		controlPanel.setLayout(new GridLayout(0, 3));
+		JButton resetButton = new JButton("Reset");
+		resetButton.addActionListener(this);
+		controlPanel.add(resetButton);
 
 		//Add gems to main board
 		generateGems();
@@ -53,9 +56,20 @@ public class GameBoard extends JFrame implements ActionListener {
 		Since Gem objects extend JButton, this triggers their getIcon method,
 		which has been overridden to return a new Icon each time it is called.
 		*/
-		ActionListener timerListener = _ -> gamePanel.repaint();
-		Timer timer = new Timer(1000 / 30, timerListener);
-		timer.start();
+		ActionListener repaintListener = _ -> gamePanel.repaint();
+		Timer repaintTimer = new Timer(1000 / 30, repaintListener);
+		repaintTimer.start();
+
+		/*
+		Start a timer running that will apply gravity to settle gems in the board and
+		introduce new random gems to the top layer of the board to keep it full.
+		 */
+		ActionListener gemDropListener = _ -> {
+			applyGravity();
+			populateTopRow();
+		};
+		Timer gemDropTimer = new Timer(1000 / 30, gemDropListener);
+		gemDropTimer.start();
 
 		pane.add(gamePanel, BorderLayout.NORTH);
 		pane.add(new JSeparator(), BorderLayout.CENTER);
@@ -64,15 +78,14 @@ public class GameBoard extends JFrame implements ActionListener {
 
 
 	/**
-	 * Instantiates the game board with new, randomly-colored gem objects
+	 * Instantiates the game board with new, null-colored gem objects
 	 */
 	private void generateGems() {
+		board = new Gem[rows][cols];
+
 		for (int x = 0; x < rows; x++) {
 			for (int y = 0; y < cols; y++) {
-				// nextInt is normally exclusive of the top value,
-				// so add 1 to make it inclusive
-				int randomNum = ThreadLocalRandom.current().nextInt(0, 5 + 1);
-				Gem gem = new Gem(GemColor.values()[randomNum], x, y);
+				Gem gem = new Gem(null, x, y);
 				gem.addActionListener(this);
 				board[x][y] = gem;
 			}
@@ -86,11 +99,74 @@ public class GameBoard extends JFrame implements ActionListener {
 	 * @param gameBoard - panel to add Gem objects to
 	 */
 	private void generateBoard(JPanel gameBoard) {
+		gameBoard.removeAll();
+
 		for (int x = 0; x < rows; x++) {
 			for (int y = 0; y < cols; y++) {
 				gameBoard.add(board[x][y]);
 			}
 		}
+	}
+
+
+	/**
+	 * Scans the top row of the game board and assigns a new random color
+	 * to all gems that currently have a 'null' color.
+	 * This is meant to simulate empty spaces being filled with new gems.
+	 */
+	private void populateTopRow() {
+		for (int y = 0; y < cols; y++) {
+			if (board[0][y].color == null) {
+				// nextInt is normally exclusive of the top value,
+				// so add 1 to make it inclusive
+				int randomNum = ThreadLocalRandom.current().nextInt(0, 5 + 1);
+				board[0][y].color = GemColor.values()[randomNum];
+			}
+		}
+	}
+
+
+	/**
+	 * Scans the board row-by-row from bottom to top, progressively trying to
+	 * update null gem colors by 'pulling' colors from the row directly above.
+	 * <p>
+	 * If a gem is null color, and the gem directly above it is not null color,
+	 * then swap colors between these 2 gems, simulating that type of gem 'falling down'.
+	 */
+	private void applyGravity() {
+		for (int x = rows - 1; x > 0; x--) {
+			for (int y = 0; y < cols; y++) {
+				if (board[x][y].color == null) {
+					if (board[x - 1][y].color != null) {
+						board[x][y].color = board[x - 1][y].color;
+						board[x - 1][y].color = null;
+					}
+				}
+			}
+		}
+	}
+
+
+	private void evaluateMatches(Gem first, Gem second) {
+		//Record color and position for both gem selections
+		GemColor firstColor = first.color;
+		int firstX = first.x;
+		int firstY = first.y;
+		GemColor secondColor = second.color;
+		int secondX = second.x;
+		int secondY = second.y;
+
+		System.out.printf("""
+							---SELECTION---
+							First selection: %s at %d, %d
+							Second selection: %s at %d, %d
+							""",
+				firstColor.name(), firstX, firstY,
+				secondColor.name(), secondX, secondY);
+
+		//Swap color for selected gems
+		board[firstX][firstY].color = secondColor;
+		board[secondX][secondY].color = firstColor;
 	}
 
 
@@ -117,34 +193,31 @@ public class GameBoard extends JFrame implements ActionListener {
 			} else {
 				lastSelection.setBackground(Color.WHITE);
 
-				//Record color and position for both gem selections
-				GemColor firstColor = lastSelection.color;
-				int firstX = lastSelection.x;
-				int firstY = lastSelection.y;
-				GemColor secondColor = selection.color;
-				int secondX = selection.x;
-				int secondY = selection.y;
-
-				System.out.printf("""
-							---SELECTION---
-							First selection: %s at %d, %d
-							Second selection: %s at %d, %d
-							""",
-						firstColor.name(), firstX, firstY,
-						secondColor.name(), secondX, secondY);
-
-				//Swap color for selected gems
-				board[firstX][firstY].color = secondColor;
-				board[secondX][secondY].color = firstColor;
+				evaluateMatches(lastSelection, board[selection.x][selection.y]);
 
 				//TODO: evaluate if swap is valid
 				//TODO: evaluate matches
 				//TODO: clear matches
-				//TODO: refill board
 				//TODO: points?
 			}
 
 			gemSelected = !gemSelected;
+		} else {//Handle clicks on other buttons
+			try {
+				JButton clicked = (JButton) e.getSource();
+
+				if (clicked.getText().equals("Reset")) {
+					System.out.println("Reset");
+
+					//Sets all gem colors to null, which will cause the board to repopulate with new colors
+					for (int x = 0; x < rows; x++) {
+						for (int y = 0; y < cols; y++) {
+							board[x][y].color = null;
+						}
+					}
+				}
+			} catch (Exception _) {
+			}
 		}
 	}
 

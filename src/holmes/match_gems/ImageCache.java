@@ -14,10 +14,19 @@ import javax.imageio.ImageIO;
  * "object database" which will remain loaded in memory.
  * <p>
  * The GameBoard will instantiate the cache map by calling getImage for all animation frames of all gems,
- * totalling 30 frames x 6 gems, or 180 images. Thus, 180 is used as the expected capacity for the map.
+ * totaling number of animation frames x number of gem colors. The product is used as the number of expected mappings.
  */
 public class ImageCache {
-	private final Map<String, BufferedImage> cache = HashMap.newHashMap(180);
+	//Calculate the number of expected mappings by multiplying the number of animation frames by the number of gem colors
+	//One additional image is added to represent the 'null' gem color, which is simply a blank BufferedImage with set dimensions
+	private final int expectedMappings = (Constants.SPIN_FRAMES * GemColor.values().length) + 1;
+	private final Map<String, BufferedImage> cache = HashMap.newHashMap(expectedMappings);
+
+	//Create the 'blank' image for cleared gems and add it to the cache
+	public ImageCache() {
+		BufferedImage blankImage = new BufferedImage(Constants.GEM_SIZE, Constants.GEM_SIZE, BufferedImage.TYPE_INT_ARGB);
+		cache.put(Constants.BLANK_GEM_PATH, blankImage);
+	}
 
 	/**
 	 * A call to this method will check if the resulting image specified by the resource path is already in the cache

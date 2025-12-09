@@ -8,10 +8,16 @@ public class Constants {
 	*/
 	public static final ImageCache cache = new ImageCache();
 
+	public static final int SPIN_FRAMES = 30;
 
 	//Second directory can be "32", "64", or "Original". These represent different sizes of the gem images.
 	private static final String GEM_MAIN_FILEPATH = "Crystals/64/";
 	private static final String GEM_FILE_EXTENSION = ".png";
+	//Used for proper sizing of blank 'null' gems. Update to match with GEM_MAIN_FILEPATH above,
+	//options are 32, 64, or 144.
+	public static final int GEM_SIZE = 64;
+
+	public static final String BLANK_GEM_PATH = "BLANK";
 
 	public static String gemFilePath(GemColor color, int frame) {
 		return GEM_MAIN_FILEPATH + color.name() + "/" + frame + GEM_FILE_EXTENSION;
