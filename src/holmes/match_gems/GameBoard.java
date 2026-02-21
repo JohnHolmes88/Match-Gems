@@ -12,7 +12,7 @@ public class GameBoard extends JFrame implements ActionListener {
 	final int rows = 10;
 	final int cols = 10;
 	Gem[][] board;
-	final ImageCache cache = Constants.cache;
+	final IconCache cache = Constants.cache;
 	boolean gemSelected = false;
 	Gem lastSelection;
 	JPanel gamePanel;
@@ -32,7 +32,7 @@ public class GameBoard extends JFrame implements ActionListener {
 		*/
 		for (int i = 1; i <= Constants.SPIN_FRAMES; i++) {
 			for (GemColor color : GemColor.values()) {
-				cache.getImage(Constants.gemFilePath(color, i));
+				cache.getIcon(Constants.gemFilePath(color, i));
 			}
 		}
 	}
@@ -57,7 +57,7 @@ public class GameBoard extends JFrame implements ActionListener {
 		which has been overridden to return a new Icon each time it is called.
 		*/
 		ActionListener repaintListener = _ -> gamePanel.repaint();
-		Timer repaintTimer = new Timer(1000 / 30, repaintListener);
+		Timer repaintTimer = new Timer(1000 / Constants.REPAINTS_PER_SECOND, repaintListener);
 		repaintTimer.start();
 
 		/*
@@ -68,7 +68,7 @@ public class GameBoard extends JFrame implements ActionListener {
 			applyGravity();
 			populateTopRow();
 		};
-		Timer gemDropTimer = new Timer(1000 / 30, gemDropListener);
+		Timer gemDropTimer = new Timer(1000 / Constants.DROPS_PER_SECOND, gemDropListener);
 		gemDropTimer.start();
 
 		pane.add(gamePanel, BorderLayout.NORTH);

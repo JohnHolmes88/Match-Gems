@@ -6,9 +6,11 @@ public class Constants {
 	and then Gem objects will request cached images from it during each tick of animation updates.
 	This allows all the animation frames of the gems to be loaded into memory for performance.
 	*/
-	public static final ImageCache cache = new ImageCache();
+	public static final IconCache cache = new IconCache();
 
 	public static final int SPIN_FRAMES = 30;
+	public static final int REPAINTS_PER_SECOND = 30;
+	public static final int DROPS_PER_SECOND = 15;
 
 	//Second directory can be "32", "64", or "Original". These represent different sizes of the gem images.
 	private static final String GEM_MAIN_FILEPATH = "Crystals/64/";

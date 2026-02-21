@@ -2,7 +2,6 @@ package holmes.match_gems;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Gem extends JButton {
@@ -150,15 +149,15 @@ public class Gem extends JButton {
 			}
 		}
 
-		BufferedImage image;
+		ImageIcon icon;
 		try {
-			image = Constants.cache.getImage(path);
+			icon = Constants.cache.getIcon(path);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
 		animationFrame++;
 
-		return new ImageIcon(image);
+		return icon;
 	}
 }
